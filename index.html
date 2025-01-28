@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Banque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #003366;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: white;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .header img {
+            height: 50px;
+        }
+
+        .header .center-text {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Navigation */
+        .nav {
+            background-color: #003366;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            margin-right: 20px;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        .nav .login {
+            background-color: #FFCC00;
+            color: #003366;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .nav .login i {
+            margin-left: 10px;
+        }
+
+        /* Main Section */
+        .main {
+            text-align: center;
+            margin: 40px 20px;
+        }
+
+        .main h1 {
+            font-size: 38px;
+            margin: 10px 0;
+            color: #003366;
+        }
+
+        .main p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .resources {
+            background-color: #C3D82C;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            display: inline-block;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .family-image {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            margin: 30px 0;
+        }
+
+        /* Dots */
+        .dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .dots div {
+            width: 12px;
+            height: 12px;
+            background-color: #ccc;
+            border-radius: 50%;
+            margin: 0 5px;
+        }
+
+        .dots .active {
+            background-color: #FFCC00;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <img src="logoB2B.png" alt="B2B Banque Logo">
+        <div class="center-text">Le Centre de ressources Primerica</div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div>
+            <a href="#">ACCUEIL</a>
+            <a href="#">PRÊTS REE</a>
+            <a href="#">PRÊTS SMART</a>
+            <a href="#">RÉCOMPENSES</a>
+            <a href="#">RESSOURCES</a>
+        </div>
+        <a href="login.html" class="login">
+            OUVRIR UNE SESSION DANS EASE
+            <i class="fas fa-key"></i>
+        </a>
+    </div>
+
+    <!-- Main Section -->
+    <div class="main">
+        <h1>PRÊTS REE DE B2B BANQUE</h1>
+        <p>Leur avenir. Votre plan.</p>
+        <div class="resources">Des ressources pour vous aider à travailler ensemble</div>
+        <img src="image2.JPG" alt="Family Image" class="family-image">
+        <div class="dots">
+            <div></div>
+            <div></div>
+            <div class="active"></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</body>
+</html>

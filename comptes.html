@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>B2B Banque</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+  <style>
+  .fade-in {
+    animation: fadeIn 1s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .hover-bg-blue:hover {
+    background-color: #003366; /* Bleu foncé du logo */
+  }
+  .hover-bg-yellow:hover {
+    background-color: #FFCC00; /* Jaune vif du logo */
+  }
+  .bg-blue-700 {
+    background-color: #003366; /* Bleu foncé du logo */
+  }
+  .bg-yellow-500 {
+    background-color: #FFCC00; /* Jaune vif du logo */
+  }
+  .bg-white {
+    background-color: #fff;
+  }
+  .floating-bubble {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background-color: #FFCC00;
+    color: #003366;
+    padding: 10px 15px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    animation: blink 1s infinite alternate;
+  }
+  .floating-bubble:hover {
+    background-color: #003366;
+    color: #FFCC00;
+  }
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  .virement-details {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    background-color: #f9f9f9;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  .historique-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  .historique-table th, .historique-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  .historique-table th {
+    background-color: #003366;
+    color: white;
+  }
+  img {
+    max-height: 40px; /* Taille réduite du logo */
+  }
+  .saldo-container {
+    position: relative;
+    overflow: hidden;
+    height: 2.5rem; /* Hauteur fixe pour contenir le solde */
+  }
+  .scrolling-saldo {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scrollSaldo 3s linear infinite;
+    font-size: 2rem;
+    font-weight: bold;
+    position: absolute;
+  }
+  @keyframes scrollSaldo {
+    0% {
+      transform: translateY(100%);
+    }
+    100% {
+      transform: translateY(-100%); /* Limite du défilement dans la case */
+    }
+  }
+  .welcome-bubble {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    background-color: #003366;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 25px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    animation: fadeInWelcome 5s forwards;
+  }
+  @keyframes fadeInWelcome {
+    0% {
+      opacity: 0;
+      bottom: 0;
+    }
+    100% {
+      opacity: 1;
+      bottom: 16px;
+    }
+  }
+</style>
+
+</head>
+<body class="bg-gray-50">
+  <!-- Bulle de bienvenue -->
+  <div class="welcome-bubble" id="welcomeBubble">
+    Bienvenue à B2B Banque !
+  </div>
+
+  <!-- Header -->
+  <header class="bg-blue-700 shadow-md">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+      <div class="flex items-center">
+        <img alt="B2B Banque Logo" class="mr-2" src="logoB2B.png" />
+        <div>
+          <h1 class="text-xl font-bold text-white">B2B BANQUE</h1>
+          <p class="text-sm text-gray-300">Votre partenaire financier au Canada</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <i class="fas fa-search text-gray-200 hover:text-white"></i>
+        <i class="fas fa-file-alt text-gray-200 hover:text-white"></i>
+        <div class="relative">
+          <i class="fas fa-envelope text-gray-200 hover:text-white"></i>
+          <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">3</span>
+        </div>
+        <i class="fas fa-user text-gray-200 hover:text-white"></i>
+        <i class="fas fa-sign-out-alt text-gray-200 hover:text-white"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col lg:flex-row">
+      <!-- Sidebar -->
+      <aside class="w-full lg:w-1/4 bg-blue-700 text-white p-4 mb-4 lg:mb-0">
+        <nav class="space-y-4">
+          <a class="flex items-center space-x-2 hover-bg-yellow p-2 rounded" href="index.html">
+            <i class="fas fa-wallet"></i>
+            <span>MES COMPTES &amp; CONTRATS</span>
+          </a>
+          <a class="flex items-center space-x-2 hover-bg-yellow p-2 rounded" href="virements.html">
+            <i class="fas fa-exchange-alt"></i>
+            <span>VIREMENT &amp; SERVICES</span>
+          </a>
+          <a class="flex items-center space-x-2 hover-bg-yellow p-2 rounded" href="historique.html">
+            <i class="fas fa-chart-line"></i>
+            <span>HISTORIQUES</span>
+          </a>
+          <a class="flex items-center space-x-2 hover-bg-yellow p-2 rounded" href="portfolio.html">
+            <i class="fas fa-briefcase"></i>
+            <span>PORTEFEUILLE &amp; BOURSE</span>
+          </a>
+          <a class="flex items-center space-x-2 hover-bg-yellow p-2 rounded" href="offers.html">
+            <i class="fas fa-gift"></i>
+            <span>NOTRE OFFRE</span>
+          </a>
+          <a class="flex items-center space-x-2 hover-bg-yellow p-2 rounded" href="needs.html">
+            <i class="fas fa-users"></i>
+            <span>VOUS &amp; VOS BESOINS</span>
+          </a>
+          <a class="flex items-center space-x-2 hover-bg-yellow p-2 rounded" href="contact.html">
+            <i class="fas fa-phone"></i>
+            <span>VOTRE BANQUE, NOUS CONTACTER</span>
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Dashboard -->
+      <main class="w-full lg:w-3/4 bg-white p-4 fade-in">
+        <div class="bg-blue-700 text-white p-4 rounded mb-4">
+          <div class="flex flex-col lg:flex-row justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">BONJOUR PASCALINE TRIBALLIER</h2>
+              <p class="text-lg">Avoirs au 28/01/2025</p>
+              <div class="saldo-container">
+                <div class="scrolling-saldo">Solde: 8.568.000,00 CAD</div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              <i class="fas fa-credit-card text-white"></i>
+              <span class="text-white">Carte en cours: 5,000.00 CAD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historical Transactions -->
+        <div>
+          <h3 class="text-xl font-bold text-blue-700">Historique des Transactions</h3>
+          <table class="historique-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Montant</th>
+                <th>Solde restant</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>28/01/2025</td>
+                <td>Virement reçu</td>
+                <td>+8.568.000,00 CAD</td>
+                <td>8.568.000,00 CAD</td>
+              </tr>
+              <tr>
+                <td>24/01/2025</td>
+                <td>Virement effectué</td>
+                <td>-0.00 CAD</td>
+                <td>0.00 CAD</td>
+              </tr>
+              <tr>
+                <td>23/01/2025</td>
+                <td>Retrait automatique</td>
+                <td>-500.00 CAD</td>
+                <td>4,200.00 CAD</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Floating Button -->
+  <div class="floating-bubble">
+    <span>Virement rapide</span>
+  </div>
+
+  <!-- Virement Details -->
+  <div class="virement-details">
+    <h4 class="text-lg font-bold text-blue-700">Détails du Virement</h4>
+    <p>Montant: 8.568.000,00 CAD</p>
+    <p>Emetteur: Sylver Gold Bull</p>
+    <p>Référence: V123456789</p>
+    <button class="bg-blue-700 text-white p-2 rounded mt-2" onclick="document.querySelector('.virement-details').style.display = 'none'">Fermer</button>
+  </div>
+
+  <script>
+    // Masquer la bulle de bienvenue après 5 secondes
+    setTimeout(() => {
+      document.getElementById('welcomeBubble').style.display = 'none';
+    }, 5000);
+
+    // Afficher les détails du virement lors du clic sur la bulle
+    document.querySelector('.floating-bubble').addEventListener('click', function() {
+      document.querySelector('.virement-details').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
