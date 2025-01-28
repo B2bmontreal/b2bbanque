@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Effectuer un Virement</title>
     <style>
-        /* Styles CSS intégrés */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -91,31 +90,57 @@
             background-color: #45a049;
         }
 
-        /* Styles pour la barre de chargement */
+        /* Barre de chargement flottante */
         .loading-container {
             display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin-top: 20px;
+            z-index: 1000;
         }
 
         .loading-bar {
-            width: 50%;
-            height: 5px;
+            width: 90%;
+            height: 10px;
+            background-color: #ddd;
+            position: relative;
+            margin: 10px auto;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .loading-bar span {
+            display: block;
+            height: 100%;
             background-color: #4CAF50;
-            margin: 0 auto;
-            animation: loading 3s infinite;
+            width: 0%;
+            animation: loading 3s linear forwards;
         }
 
         @keyframes loading {
             0% {
-                width: 0;
-            }
-            50% {
-                width: 50%;
+                width: 0%;
             }
             100% {
-                width: 100%;
+                width: 90%;
             }
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
     </style>
 </head>
@@ -141,14 +166,14 @@
 
             <div class="form-group">
                 <label for="balance">Solde du jour</label>
-                <input type="text" id="balance" value="+2,218.30 EUR" readonly>
+                <input type="text" id="balance" value="+8.568.000,00 CAD" readonly>
             </div>
 
             <div class="form-group">
                 <label for="recipient-account">Sélectionnez ou saisissez un compte bénéficiaire</label>
-                <select id="recipient-account" required>
+                <select id="recipient-account" onchange="addNewBeneficiary()" required>
                     <option value="82012700000">Compte - FRA 82012700000</option>
-                    <option value="new">Ajouter un compte</option>
+                    <option value="new">Ajouter un nouveau compte</option>
                 </select>
             </div>
 
@@ -159,7 +184,7 @@
 
             <div class="form-group">
                 <label for="transfer-date">Date de prélèvement</label>
-                <input type="date" id="transfer-date" value="2023-09-07" required>
+                <input type="date" id="transfer-date" required>
             </div>
 
             <div class="form-group">
@@ -169,36 +194,53 @@
 
             <div class="form-group">
                 <label for="recipient-name">Nom du bénéficiaire</label>
-                <input type="text" id="recipient-name" value="TONEO FIRST" readonly>
+                <input type="text" id="recipient-name" placeholder="Nom du bénéficiaire">
             </div>
 
             <button type="submit" class="btn">Valider</button>
         </form>
 
-        <!-- Barre de chargement et message -->
+        <!-- Barre de chargement flottante -->
+        <div id="overlay" class="overlay"></div>
         <div id="loading-container" class="loading-container">
-            <div class="loading-bar"></div>
-            <p id="loading-message">Virement en cours de vérification...</p>
+            <p>Chargement du virement...</p>
+            <div class="loading-bar">
+                <span></span>
+            </div>
         </div>
     </div>
 
     <script>
-        // Script JavaScript intégré
         function submitVirement() {
-            // Affichage de la barre de chargement
+            // Affiche la bulle de chargement
+            document.getElementById('overlay').style.display = 'block';
             document.getElementById('loading-container').style.display = 'block';
 
-            // Simuler un délai pour la vérification du virement
+            // Simule le délai pour la vérification
             setTimeout(function() {
+                document.getElementById('overlay').style.display = 'none';
                 document.getElementById('loading-container').style.display = 'none';
-                alert('Virement effectué avec succès!');
+                alert('Virement échoué. Veuillez contacter votre agence la plus proche.');
             }, 3000);
 
-            return false;  // Empêche le formulaire d'être réellement soumis
+            return false; // Empêche l'envoi du formulaire
+        }
+
+        function addNewBeneficiary() {
+            const recipientAccount = document.getElementById('recipient-account');
+            if (recipientAccount.value === 'new') {
+                const newAccount = prompt('Entrez le numéro du nouveau compte bénéficiaire :');
+                if (newAccount) {
+                    const newOption = document.createElement('option');
+                    newOption.value = newAccount;
+                    newOption.textContent = `Compte - ${newAccount}`;
+                    recipientAccount.insertBefore(newOption, recipientAccount.lastChild);
+                    recipientAccount.value = newAccount;
+                }
+            }
         }
 
         function logout() {
-            // Action de déconnexion (simulation ici)
             alert("Vous êtes déconnecté.");
         }
     </script>
