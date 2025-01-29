@@ -11,62 +11,32 @@
             margin: 0;
             padding: 0;
         }
-
         .container {
             width: 80%;
             margin: 0 auto;
             padding: 20px;
         }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            margin: 0;
-        }
-
-        .logout-btn {
-            background-color: #ff4c4c;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .transfer-form {
+        .transfer-form, .history {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         .form-group label {
             display: block;
             font-weight: bold;
         }
-
-        .form-group input,
-        .form-group select {
+        .form-group input {
             width: 100%;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ddd;
             margin-top: 5px;
         }
-
-        .form-group input[readonly] {
-            background-color: #f0f0f0;
-        }
-
         .btn {
             background-color: #4CAF50;
             color: white;
@@ -75,165 +45,160 @@
             cursor: pointer;
             border-radius: 5px;
         }
-
-        .btn:hover {
-            background-color: #45a049;
+        .btn-reset {
+            background-color: #f44336;
+            margin-left: 10px;
         }
-
-        /* Bulle flottante */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
-
-        .loading-container {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            z-index: 11;
-        }
-
         .loading-bar {
             width: 0;
             height: 5px;
-            background-color: #4CAF50;
-            margin: 10px 0;
+            background-color: green;
+            margin-top: 10px;
         }
-
-        #status-message {
-            display: none;
-            font-size: 16px;
-            font-weight: bold;
+        .history ul {
+            list-style: none;
+            padding-left: 0;
         }
-
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Effectuer un virement</h1>
-            <button class="logout-btn" onclick="logout()">Déconnexion</button>
-        </header>
-
+        <h1>Effectuer un virement</h1>
         <form class="transfer-form" id="virement-form" onsubmit="return submitVirement()">
-            <h2>Virement ponctuel</h2>
-
-            <div class="form-group">
-                <label for="account-emitter">Sélectionnez un compte émetteur</label>
-                <select id="account-emitter" required>
-                    <option value="03940">Compte - N°03940 000000XXXXXX</option>
-                </select>
-            </div>
-
             <div class="form-group">
                 <label for="balance">Solde du jour</label>
-                <input type="text" id="balance" value="8.568.000,00 CAD" readonly>
+                <input type="text" id="balance" readonly>
             </div>
-
-            <div class="form-group">
-                <label for="recipient-account">Compte bénéficiaire</label>
-                <select id="recipient-account" onchange="toggleNewBeneficiary()" required>
-                    <option value="82012700000">Compte - FRA 82012700000</option>
-                    <option value="new">Ajouter un nouveau bénéficiaire</option>
-                </select>
-                <input type="text" id="new-recipient" placeholder="Saisir un nouveau compte" style="display: none; margin-top: 10px;">
-            </div>
-
-            <div class="form-group">
-                <label for="recipient-name">Nom du bénéficiaire</label>
-                <input type="text" id="recipient-name" placeholder="Nom du bénéficiaire">
-            </div>
-
             <div class="form-group">
                 <label for="transfer-amount">Montant</label>
-                <input type="number" id="transfer-amount" placeholder="Entrez le montant" required>
+                <input type="number" id="transfer-amount" placeholder="Entrez le montant" required aria-label="Montant du virement">
             </div>
-
             <div class="form-group">
-                <label for="transfer-date">Date de prélèvement</label>
-                <input type="date" id="transfer-date" required>
+                <label for="transfer-number">Numéro du virement</label>
+                <input type="text" id="transfer-number" readonly>
             </div>
-
             <div class="form-group">
-                <label for="transfer-reason">Motif (facultatif)</label>
-                <input type="text" id="transfer-reason" placeholder="Motif du virement">
+                <label for="iban">IBAN du bénéficiaire</label>
+                <input type="text" id="iban" placeholder="IBAN du bénéficiaire" required aria-label="IBAN du bénéficiaire">
             </div>
-
+            <div class="form-group">
+                <label for="beneficiary-name">Nom du bénéficiaire</label>
+                <input type="text" id="beneficiary-name" placeholder="Nom du bénéficiaire" required aria-label="Nom du bénéficiaire">
+            </div>
+            <div class="form-group">
+                <label for="motif">Motif</label>
+                <input type="text" id="motif" placeholder="Motif du virement" required aria-label="Motif du virement">
+            </div>
             <button type="submit" class="btn">Valider</button>
+            <button type="reset" class="btn btn-reset">Réinitialiser</button>
         </form>
-
-        <!-- Overlay et Bulle de Chargement -->
-        <div class="overlay" id="overlay"></div>
-        <div class="loading-container" id="loading-container">
-            <p id="status-message">✅ Virement en cours...</p>
+        
+        <div class="history">
+            <h2>Historique des Virements</h2>
+            <ul id="history-list"></ul>
             <div class="loading-bar" id="loading-bar"></div>
+            <p id="history-message"></p>
         </div>
     </div>
 
     <script>
+        // Vérification du format de l'IBAN
+        function validateIBAN(iban) {
+            let regex = /^[A-Z0-9]{15,34}$/;
+            return regex.test(iban);
+        }
+
+        // Récupérer le solde enregistré
+        function getStoredBalance() {
+            return localStorage.getItem('balance') ? parseFloat(localStorage.getItem('balance')) : 8568000;
+        }
+
+        // Mettre à jour le solde dans le localStorage
+        function updateStoredBalance(newBalance) {
+            localStorage.setItem('balance', newBalance.toFixed(2));
+        }
+
+        // Générer un numéro de virement unique
+        function generateTransferNumber() {
+            return 'VIR' + Math.floor(Math.random() * 1000000);
+        }
+
+        // Charger l'historique des virements depuis le localStorage
+        function loadHistory() {
+            let history = JSON.parse(localStorage.getItem('virementHistory')) || [];
+            let historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            history.forEach(entry => {
+                let li = document.createElement('li');
+                li.textContent = entry;
+                historyList.appendChild(li);
+            });
+        }
+
+        // Afficher le solde et générer un numéro de virement unique
+        document.getElementById('balance').value = getStoredBalance();
+        document.getElementById('transfer-number').value = generateTransferNumber();
+
+        // Soumettre le formulaire de virement
         function submitVirement() {
-            let statusMessage = document.getElementById('status-message');
+            let transferAmount = parseFloat(document.getElementById('transfer-amount').value);
+            let transferNumber = document.getElementById('transfer-number').value;
+            let iban = document.getElementById('iban').value;
+            let beneficiaryName = document.getElementById('beneficiary-name').value;
+            let motif = document.getElementById('motif').value;
+            let balance = getStoredBalance();
+
+            if (isNaN(transferAmount) || transferAmount <= 0) {
+                alert('Veuillez entrer un montant valide.');
+                return false;
+            }
+
+            if (transferAmount > balance) {
+                alert('Fonds insuffisants.');
+                return false;
+            }
+
+            if (!validateIBAN(iban)) {
+                alert('L\'IBAN du bénéficiaire est invalide.');
+                return false;
+            }
+
+            balance -= transferAmount;
+            updateStoredBalance(balance);
+            document.getElementById('balance').value = balance.toFixed(2);
+
+            let newEntry = `${transferNumber}: ${transferAmount.toFixed(2)} EUR à ${beneficiaryName} (${iban}) - Motif: ${motif} - Statut: En cours...`;
+
+            // Ajouter l'entrée à l'historique localStorage
+            let history = JSON.parse(localStorage.getItem('virementHistory')) || [];
+            history.push(newEntry);
+            localStorage.setItem('virementHistory', JSON.stringify(history));
+
+            loadHistory();  // Recharger l'historique
+
             let loadingBar = document.getElementById('loading-bar');
-
-            // Affichage de la bulle de chargement
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('loading-container').style.display = 'block';
-
-            statusMessage.innerText = '✅ Virement en cours...';
-            statusMessage.style.color = 'green';
-            statusMessage.style.display = 'block';
-
             let progress = 0;
             let interval = setInterval(() => {
                 progress += 10;
                 loadingBar.style.width = progress + "%";
-
-                if (progress >= 90) {
+                if (progress >= 100) {
                     clearInterval(interval);
-                    
-                    // Après 3 secondes, message de validation
-                    setTimeout(() => {
-                        document.getElementById('overlay').style.display = 'none';
-                        document.getElementById('loading-container').style.display = 'none';
-                        
-                        statusMessage.innerText = '✅ Virement validé avec succès !';
-                        statusMessage.style.color = 'blue';
-
-                        alert('✅ Virement validé avec succès !');
-                    }, 1000);
+                    let successEntry = `${transferNumber}: ${transferAmount.toFixed(2)} EUR à ${beneficiaryName} (${iban}) - Motif: ${motif} - Statut: Réussi.`;
+                    let historyMessage = document.getElementById('history-message');
+                    historyMessage.innerText = "✅ Virement en cours !";
+                    historyMessage.style.color = "red";
+                    alert('✅ Virement Bloqué !');
                 }
             }, 300);
 
-            return false;
+            // Afficher un lien vers l'historique
+            document.getElementById('history-message').innerHTML = `<br><a href="historique.html">Voir l'historique des virements</a>`;
+
+            return false; // Ne pas soumettre le formulaire
         }
 
-        function toggleNewBeneficiary() {
-            let recipientSelect = document.getElementById('recipient-account');
-            let newRecipientInput = document.getElementById('new-recipient');
-
-            if (recipientSelect.value === "new") {
-                newRecipientInput.style.display = "block";
-            } else {
-                newRecipientInput.style.display = "none";
-            }
-        }
-
-        function logout() {
-            alert("Vous êtes déconnecté.");
-        }
+        // Charger l'historique au chargement de la page
+        window.onload = loadHistory;
     </script>
 </body>
 </html>
