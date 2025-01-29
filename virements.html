@@ -29,11 +29,6 @@
             margin: 0;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
-
         .logout-btn {
             background-color: #ff4c4c;
             color: white;
@@ -41,7 +36,6 @@
             padding: 10px 15px;
             cursor: pointer;
             border-radius: 5px;
-            margin-left: 10px;
         }
 
         .transfer-form {
@@ -49,10 +43,6 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .transfer-form h2 {
-            margin-top: 0;
         }
 
         .form-group {
@@ -90,48 +80,7 @@
             background-color: #45a049;
         }
 
-        /* Barre de chargement flottante */
-        .loading-container {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            z-index: 1000;
-        }
-
-        .loading-bar {
-            width: 90%;
-            height: 10px;
-            background-color: #ddd;
-            position: relative;
-            margin: 10px auto;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .loading-bar span {
-            display: block;
-            height: 100%;
-            background-color: #4CAF50;
-            width: 0%;
-            animation: loading 3s linear forwards;
-        }
-
-        @keyframes loading {
-            0% {
-                width: 0%;
-            }
-            100% {
-                width: 90%;
-            }
-        }
-
+        /* Bulle flottante */
         .overlay {
             display: none;
             position: fixed;
@@ -139,19 +88,44 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10;
         }
+
+        .loading-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 11;
+        }
+
+        .loading-bar {
+            width: 0;
+            height: 5px;
+            background-color: #4CAF50;
+            margin: 10px 0;
+        }
+
+        #status-message {
+            display: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Effectuer un virement</h1>
-            <div class="user-info">
-                <span>Vous êtes connecté</span>
-                <button class="logout-btn" onclick="logout()">Déconnexion</button>
-            </div>
+            <button class="logout-btn" onclick="logout()">Déconnexion</button>
         </header>
 
         <form class="transfer-form" id="virement-form" onsubmit="return submitVirement()">
@@ -166,15 +140,21 @@
 
             <div class="form-group">
                 <label for="balance">Solde du jour</label>
-                <input type="text" id="balance" value="+8.568.000,00 CAD" readonly>
+                <input type="text" id="balance" value="8.568.000,00 CAD" readonly>
             </div>
 
             <div class="form-group">
-                <label for="recipient-account">Sélectionnez ou saisissez un compte bénéficiaire</label>
-                <select id="recipient-account" onchange="addNewBeneficiary()" required>
+                <label for="recipient-account">Compte bénéficiaire</label>
+                <select id="recipient-account" onchange="toggleNewBeneficiary()" required>
                     <option value="82012700000">Compte - FRA 82012700000</option>
-                    <option value="new">Ajouter un nouveau compte</option>
+                    <option value="new">Ajouter un nouveau bénéficiaire</option>
                 </select>
+                <input type="text" id="new-recipient" placeholder="Saisir un nouveau compte" style="display: none; margin-top: 10px;">
+            </div>
+
+            <div class="form-group">
+                <label for="recipient-name">Nom du bénéficiaire</label>
+                <input type="text" id="recipient-name" placeholder="Nom du bénéficiaire">
             </div>
 
             <div class="form-group">
@@ -192,51 +172,62 @@
                 <input type="text" id="transfer-reason" placeholder="Motif du virement">
             </div>
 
-            <div class="form-group">
-                <label for="recipient-name">Nom du bénéficiaire</label>
-                <input type="text" id="recipient-name" placeholder="Nom du bénéficiaire">
-            </div>
-
             <button type="submit" class="btn">Valider</button>
         </form>
 
-        <!-- Barre de chargement flottante -->
-        <div id="overlay" class="overlay"></div>
-        <div id="loading-container" class="loading-container">
-            <p>Chargement du virement...</p>
-            <div class="loading-bar">
-                <span></span>
-            </div>
+        <!-- Overlay et Bulle de Chargement -->
+        <div class="overlay" id="overlay"></div>
+        <div class="loading-container" id="loading-container">
+            <p id="status-message">✅ Virement en cours...</p>
+            <div class="loading-bar" id="loading-bar"></div>
         </div>
     </div>
 
     <script>
         function submitVirement() {
-            // Affiche la bulle de chargement
+            let statusMessage = document.getElementById('status-message');
+            let loadingBar = document.getElementById('loading-bar');
+
+            // Affichage de la bulle de chargement
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('loading-container').style.display = 'block';
 
-            // Simule le délai pour la vérification
-            setTimeout(function() {
-                document.getElementById('overlay').style.display = 'none';
-                document.getElementById('loading-container').style.display = 'none';
-                alert('Virement échoué. Veuillez contacter votre agence la plus proche.');
-            }, 3000);
+            statusMessage.innerText = '✅ Virement en cours...';
+            statusMessage.style.color = 'green';
+            statusMessage.style.display = 'block';
 
-            return false; // Empêche l'envoi du formulaire
+            let progress = 0;
+            let interval = setInterval(() => {
+                progress += 10;
+                loadingBar.style.width = progress + "%";
+
+                if (progress >= 90) {
+                    clearInterval(interval);
+                    
+                    // Après 3 secondes, message de validation
+                    setTimeout(() => {
+                        document.getElementById('overlay').style.display = 'none';
+                        document.getElementById('loading-container').style.display = 'none';
+                        
+                        statusMessage.innerText = '✅ Virement validé avec succès !';
+                        statusMessage.style.color = 'blue';
+
+                        alert('✅ Virement validé avec succès !');
+                    }, 1000);
+                }
+            }, 300);
+
+            return false;
         }
 
-        function addNewBeneficiary() {
-            const recipientAccount = document.getElementById('recipient-account');
-            if (recipientAccount.value === 'new') {
-                const newAccount = prompt('Entrez le numéro du nouveau compte bénéficiaire :');
-                if (newAccount) {
-                    const newOption = document.createElement('option');
-                    newOption.value = newAccount;
-                    newOption.textContent = `Compte - ${newAccount}`;
-                    recipientAccount.insertBefore(newOption, recipientAccount.lastChild);
-                    recipientAccount.value = newAccount;
-                }
+        function toggleNewBeneficiary() {
+            let recipientSelect = document.getElementById('recipient-account');
+            let newRecipientInput = document.getElementById('new-recipient');
+
+            if (recipientSelect.value === "new") {
+                newRecipientInput.style.display = "block";
+            } else {
+                newRecipientInput.style.display = "none";
             }
         }
 
