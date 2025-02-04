@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -11,32 +11,41 @@
             margin: 0;
             padding: 0;
         }
+
         .container {
             width: 80%;
             margin: 0 auto;
             padding: 20px;
         }
-        .transfer-form, .history {
+
+        h1 {
+            text-align: center;
+        }
+
+        .transfer-form {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-group label {
             display: block;
             font-weight: bold;
         }
-        .form-group input {
+
+        .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ddd;
             margin-top: 5px;
         }
+
         .btn {
             background-color: #4CAF50;
             color: white;
@@ -44,161 +53,153 @@
             padding: 10px 15px;
             cursor: pointer;
             border-radius: 5px;
+            width: 100%;
         }
-        .btn-reset {
-            background-color: #f44336;
-            margin-left: 10px;
+
+        .btn:hover {
+            background-color: #45a049;
         }
+
+        /* Barre de chargement flottante */
+        .loading-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1000;
+        }
+
         .loading-bar {
-            width: 0;
-            height: 5px;
-            background-color: green;
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px auto;
+        }
+
+        .loading-bar span {
+            display: block;
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            animation: loading 3s linear forwards;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Nouveau message "Virement en cours..." */
+        .status-message {
+            font-size: 18px;
+            font-weight: bold;
+            color: green;
+            text-align: center;
+            display: none;
             margin-top: 10px;
         }
-        .history ul {
-            list-style: none;
-            padding-left: 0;
-        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Effectuer un virement</h1>
+
         <form class="transfer-form" id="virement-form" onsubmit="return submitVirement()">
+            <h2>Virement ponctuel</h2>
+
+            <div class="form-group">
+                <label for="account-emitter">Sélectionnez un compte émetteur</label>
+                <select id="account-emitter" required>
+                    <option value="03940">Compte - N°03940 000000XXXXXX</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="balance">Solde du jour</label>
-                <input type="text" id="balance" readonly>
+                <input type="text" id="balance" value="+8.568.000,00 CAD" readonly>
             </div>
+
+            <div class="form-group">
+                <label for="recipient-account">Sélectionnez un compte bénéficiaire</label>
+                <select id="recipient-account" required>
+                    <option value="82012700000">Compte - FRA 82012700000</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="transfer-amount">Montant</label>
-                <input type="number" id="transfer-amount" placeholder="Entrez le montant" required aria-label="Montant du virement">
+                <input type="number" id="transfer-amount" placeholder="Entrez le montant" required>
             </div>
+
             <div class="form-group">
-                <label for="transfer-number">Numéro du virement</label>
-                <input type="text" id="transfer-number" readonly>
+                <label for="transfer-date">Date de prélèvement</label>
+                <input type="date" id="transfer-date" required>
             </div>
+
             <div class="form-group">
-                <label for="iban">IBAN du bénéficiaire</label>
-                <input type="text" id="iban" placeholder="IBAN du bénéficiaire" required aria-label="IBAN du bénéficiaire">
+                <label for="recipient-name">Nom du bénéficiaire</label>
+                <input type="text" id="recipient-name" placeholder="Nom du bénéficiaire">
             </div>
-            <div class="form-group">
-                <label for="beneficiary-name">Nom du bénéficiaire</label>
-                <input type="text" id="beneficiary-name" placeholder="Nom du bénéficiaire" required aria-label="Nom du bénéficiaire">
-            </div>
-            <div class="form-group">
-                <label for="motif">Motif</label>
-                <input type="text" id="motif" placeholder="Motif du virement" required aria-label="Motif du virement">
-            </div>
+
             <button type="submit" class="btn">Valider</button>
-            <button type="reset" class="btn btn-reset">Réinitialiser</button>
         </form>
-        
-        <div class="history">
-            <h2>Historique des Virements</h2>
-            <ul id="history-list"></ul>
-            <div class="loading-bar" id="loading-bar"></div>
-            <p id="history-message"></p>
+
+        <!-- Message "Virement en cours..." -->
+        <div id="status-message" class="status-message">✅ Virement en cours...</div>
+
+        <!-- Barre de chargement flottante -->
+        <div id="overlay" class="overlay"></div>
+        <div id="loading-container" class="loading-container">
+            <p>Chargement du virement...</p>
+            <div class="loading-bar">
+                <span></span>
+            </div>
         </div>
     </div>
 
     <script>
-        // Vérification du format de l'IBAN
-        function validateIBAN(iban) {
-            let regex = /^[A-Z0-9]{15,34}$/;
-            return regex.test(iban);
-        }
-
-        // Récupérer le solde enregistré
-        function getStoredBalance() {
-            return localStorage.getItem('balance') ? parseFloat(localStorage.getItem('balance')) : 8568000;
-        }
-
-        // Mettre à jour le solde dans le localStorage
-        function updateStoredBalance(newBalance) {
-            localStorage.setItem('balance', newBalance.toFixed(2));
-        }
-
-        // Générer un numéro de virement unique
-        function generateTransferNumber() {
-            return 'VIR' + Math.floor(Math.random() * 1000000);
-        }
-
-        // Charger l'historique des virements depuis le localStorage
-        function loadHistory() {
-            let history = JSON.parse(localStorage.getItem('virementHistory')) || [];
-            let historyList = document.getElementById('history-list');
-            historyList.innerHTML = '';
-            history.forEach(entry => {
-                let li = document.createElement('li');
-                li.textContent = entry;
-                historyList.appendChild(li);
-            });
-        }
-
-        // Afficher le solde et générer un numéro de virement unique
-        document.getElementById('balance').value = getStoredBalance();
-        document.getElementById('transfer-number').value = generateTransferNumber();
-
-        // Soumettre le formulaire de virement
         function submitVirement() {
-            let transferAmount = parseFloat(document.getElementById('transfer-amount').value);
-            let transferNumber = document.getElementById('transfer-number').value;
-            let iban = document.getElementById('iban').value;
-            let beneficiaryName = document.getElementById('beneficiary-name').value;
-            let motif = document.getElementById('motif').value;
-            let balance = getStoredBalance();
+            // Affiche le message "Virement en cours..." en vert
+            document.getElementById('status-message').style.display = 'block';
 
-            if (isNaN(transferAmount) || transferAmount <= 0) {
-                alert('Veuillez entrer un montant valide.');
-                return false;
-            }
+            // Affiche la bulle de chargement
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('loading-container').style.display = 'block';
 
-            if (transferAmount > balance) {
-                alert('Fonds insuffisants.');
-                return false;
-            }
+            // Simule le délai de traitement
+            setTimeout(function() {
+                // Masquer la barre de chargement et "Virement en cours..."
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('status-message').style.display = 'none';
 
-            if (!validateIBAN(iban)) {
-                alert('L\'IBAN du bénéficiaire est invalide.');
-                return false;
-            }
+                // Message de validation
+                alert('✅ Virement validé avec succès !');
+            }, 3000);
 
-            balance -= transferAmount;
-            updateStoredBalance(balance);
-            document.getElementById('balance').value = balance.toFixed(2);
-
-            let newEntry = `${transferNumber}: ${transferAmount.toFixed(2)} EUR à ${beneficiaryName} (${iban}) - Motif: ${motif} - Statut: En cours...`;
-
-            // Ajouter l'entrée à l'historique localStorage
-            let history = JSON.parse(localStorage.getItem('virementHistory')) || [];
-            history.push(newEntry);
-            localStorage.setItem('virementHistory', JSON.stringify(history));
-
-            loadHistory();  // Recharger l'historique
-
-            let loadingBar = document.getElementById('loading-bar');
-            let progress = 0;
-            let interval = setInterval(() => {
-                progress += 10;
-                loadingBar.style.width = progress + "%";
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    let successEntry = `${transferNumber}: ${transferAmount.toFixed(2)} EUR à ${beneficiaryName} (${iban}) - Motif: ${motif} - Statut: Réussi.`;
-                    let historyMessage = document.getElementById('history-message');
-                    historyMessage.innerText = "✅ Virement en cours !";
-                    historyMessage.style.color = "red";
-                    alert('✅ Virement Bloqué !');
-                }
-            }, 300);
-
-            // Afficher un lien vers l'historique
-            document.getElementById('history-message').innerHTML = `<br><a href="historique.html">Voir l'historique des virements</a>`;
-
-            return false; // Ne pas soumettre le formulaire
+            return false; // Empêche l'envoi du formulaire
         }
-
-        // Charger l'historique au chargement de la page
-        window.onload = loadHistory;
     </script>
 </body>
 </html>
+    
